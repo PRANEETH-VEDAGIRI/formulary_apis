@@ -1,0 +1,816 @@
+{
+  "payers": {
+    "table": "crm.payers",
+    "columns": [
+      "name",
+      "type",
+      "address",
+      "city",
+      "state",
+      "zip_code",
+      "country",
+      "phone",
+      "fax",
+      "email",
+      "website",
+      "status",
+      "integration_id",
+      "mdm_id",
+      "external_id",
+      "formulary_url_available_flag",
+      "source_type",
+      "payer_number",
+      "state_code",
+      "external_id_2",
+      "external_id_3",
+      "external_id_4",
+      "external_id_5",
+      "support_start_time",
+      "support_end_time",
+      "timezone",
+      "pa_submission_method"
+    ],
+    "records": [
+      {
+        "name": "AMBETTER",
+        "type": "Unspecified/Unknown",
+        "state": "North Carolina",
+        "status": "Active",
+        "payer_number": "PAY-022326",
+        "state_code": "NC"
+      },
+      {
+        "name": "Cigna",
+        "type": "Unspecified/Unknown",
+        "state": "New York",
+        "status": "Unverified",
+        "payer_number": "PAY-022392",
+        "state_code": "NY"
+      },
+      {
+        "name": "Blue Cross of California",
+        "type": "PPO",
+        "state": "California",
+        "status": "Unverified",
+        "payer_number": "PAY-022425",
+        "state_code": "CA"
+      },
+      {
+        "name": "Emblem Health",
+        "type": "Commercial",
+        "state": "New York",
+        "status": "Active",
+        "external_id": "000101",
+        "formulary_url_available_flag": true,
+        "payer_number": "PAY-105338",
+        "support_start_time": "08:00:00",
+        "support_end_time": "18:00:00",
+        "timezone": "America/New_York"
+      },
+      {
+        "name": "Superior HealthPlan",
+        "type": "Commercial",
+        "state": "Texas",
+        "status": "Active",
+        "external_id": "00393,00670",
+        "formulary_url_available_flag": true,
+        "payer_number": "PAY-105593"
+      }
+    ]
+  },
+  "plans": {
+    "table": "crm.payer_based_plans",
+    "columns": [
+      "name",
+      "payer_id",
+      "formulary_url_available_flag",
+      "type",
+      "sub_type",
+      "bin_number",
+      "pcn_number",
+      "group_number",
+      "direct_formulary_url",
+      "url_status",
+      "plan_year",
+      "ingest_status",
+      "ingest_completed_at",
+      "file_hash_sha256",
+      "run",
+      "status",
+      "active",
+      "source"
+    ],
+    "records": [
+      {
+        "name": "Unknown Plan",
+        "payer_id": "0c255ee1-04c9-4efd-bb85-1a4de685f7f2",
+        "formulary_url_available_flag": true,
+        "type": "Unspecified/Unknown",
+        "plan_year": 2026,
+        "status": "Active",
+        "active": true,
+        "source": "Data Collection"
+      },
+      {
+        "name": "PPO DENTAL 2000",
+        "payer_id": "074732a3-2931-4449-b637-eea7d93cc59e",
+        "formulary_url_available_flag": true,
+        "type": "PPO",
+        "plan_year": 2026,
+        "status": "Active",
+        "active": true,
+        "source": "Data Collection"
+      },
+      {
+        "name": "EVERYDAY BRONZE + VISION + ADULT DENTAL",
+        "payer_id": "ba6bf1d1-234f-40a1-b39a-252ff4fbd1d2",
+        "formulary_url_available_flag": true,
+        "type": "Unspecified/Unknown",
+        "plan_year": 2026,
+        "status": "Active",
+        "active": true,
+        "source": "Data Collection"
+      },
+      {
+        "name": "Emblem Health New York State Health Insurance Program-Tier",
+        "payer_id": "131014ec-9fa5-473d-9eb8-0a42bc83f8d0",
+        "formulary_url_available_flag": true,
+        "type": "Employer",
+        "plan_year": 2026,
+        "status": "Unverified",
+        "active": true,
+        "source": "Data Collection"
+      },
+      {
+        "name": "BlueCross Secondary Saver",
+        "payer_id": "131014ec-9fa5-473d-9eb8-0a42bc83f8d0",
+        "formulary_url_available_flag": true,
+        "type": "Employer",
+        "plan_year": 2026,
+        "status": "Unverified",
+        "active": true,
+        "source": "Data Collection"
+      }
+    ]
+  },
+  "drug-formulary": {
+    "table": "crm.drug_formulary_details",
+    "columns": [
+      "coverage_status",
+      "drug_tier",
+      "is_prior_authorization_required",
+      "is_step_therapy_required",
+      "is_quantity_limit_applied",
+      "quantity_limit_details",
+      "step_therapy_details",
+      "prior_auth_details",
+      "coverage_details",
+      "status",
+      "last_updated_date",
+      "drug_name",
+      "drug_requirements",
+      "ocr_confidence_score",
+      "llm_summary_confidence_score",
+      "manual_review",
+      "source_file_hash",
+      "preferred_status",
+      "exclusions",
+      "age_gender_restrictions",
+      "diagnosis_indications_restrictions",
+      "brand_id",
+      "product_id",
+      "expanded_drug_name",
+      "expansion_status"
+    ],
+    "records": [
+      {
+        "coverage_status": "Covered with Conditions",
+        "drug_tier": "Tier 2",
+        "is_prior_authorization_required": false,
+        "is_step_therapy_required": false,
+        "is_quantity_limit_applied": false,
+        "status": "inactive",
+        "last_updated_date": "2026-08-27",
+        "drug_name": "SKYRIZI \u2013 risankizumab-rzaa subcutaneous soln cartridge 180 mg/1.2ml, 360 mg/2.4ml",
+        "ocr_confidence_score": "0.8500",
+        "manual_review": false,
+        "source_file_hash": "03605eeb1f2c2cd2abe21970d4abd7c4ae2d34872f19eedc6a2ec29ec8506201",
+        "expansion_status": "Not Started"
+      },
+      {
+        "coverage_status": "Covered with Conditions",
+        "drug_tier": "Tier 2",
+        "is_prior_authorization_required": false,
+        "is_step_therapy_required": false,
+        "is_quantity_limit_applied": false,
+        "status": "inactive",
+        "last_updated_date": "2026-08-27",
+        "drug_name": "amiodarone hcl tab 100 mg, 200 mg, 400 mg",
+        "ocr_confidence_score": "0.8500",
+        "manual_review": false,
+        "source_file_hash": "03605eeb1f2c2cd2abe21970d4abd7c4ae2d34872f19eedc6a2ec29ec8506201",
+        "expansion_status": "Not Started"
+      },
+      {
+        "coverage_status": "Covered with Conditions",
+        "drug_tier": "Tier 2",
+        "is_prior_authorization_required": false,
+        "is_step_therapy_required": false,
+        "is_quantity_limit_applied": false,
+        "status": "inactive",
+        "last_updated_date": "2026-08-27",
+        "drug_name": "AXTLE \u2013 pemetrexed dipotassium for iv soln 100 mg (base equiv), 500 mg (base equiv)",
+        "drug_requirements": "SP",
+        "ocr_confidence_score": "0.8500",
+        "manual_review": false,
+        "source_file_hash": "03605eeb1f2c2cd2abe21970d4abd7c4ae2d34872f19eedc6a2ec29ec8506201",
+        "expansion_status": "Not Started"
+      },
+      {
+        "coverage_status": "Covered",
+        "drug_tier": "Tier 1",
+        "is_prior_authorization_required": false,
+        "is_step_therapy_required": false,
+        "is_quantity_limit_applied": false,
+        "status": "inactive",
+        "last_updated_date": "2026-08-27",
+        "drug_name": "desmopressin acetate preservative free (pf) inj 4 mcg/ml (Ddavp)",
+        "ocr_confidence_score": "0.8500",
+        "manual_review": false,
+        "source_file_hash": "03605eeb1f2c2cd2abe21970d4abd7c4ae2d34872f19eedc6a2ec29ec8506201",
+        "expansion_status": "Not Started"
+      },
+      {
+        "coverage_status": "Covered with Conditions",
+        "drug_tier": "Tier 1",
+        "is_prior_authorization_required": false,
+        "is_step_therapy_required": false,
+        "is_quantity_limit_applied": true,
+        "quantity_limit_details": {
+          "details": "30 tablets/30 days"
+        },
+        "status": "inactive",
+        "last_updated_date": "2026-08-27",
+        "drug_name": "emtricitabine-tenofovir disoproxil fumarate tab 100-150 mg, 133-200 mg, 167-250 mg, 200-300 mg (Truvada)",
+        "drug_requirements": "QL (30 tablets/30 days)",
+        "ocr_confidence_score": "0.8500",
+        "manual_review": false,
+        "source_file_hash": "03605eeb1f2c2cd2abe21970d4abd7c4ae2d34872f19eedc6a2ec29ec8506201",
+        "expansion_status": "Not Started"
+      }
+    ]
+  },
+  "acronyms": {
+    "table": "crm.acronym_details",
+    "columns": [
+      "state",
+      "payer_id",
+      "member_plan_id",
+      "acronym",
+      "expansion",
+      "explanation",
+      "coverage_status"
+    ],
+    "records": [
+      {
+        "state": "California",
+        "payer_id": "24c51377-14dc-4b02-b20e-8059b3a1d436",
+        "member_plan_id": "a2705950-8424-5817-a1f6-65a978cd0689",
+        "acronym": "OTC",
+        "expansion": "Over the Counter",
+        "explanation": "Over the counter medications that do not require a prescription.",
+        "coverage_status": "Covered with Conditions"
+      },
+      {
+        "state": "California",
+        "payer_id": "24c51377-14dc-4b02-b20e-8059b3a1d436",
+        "member_plan_id": "a2705950-8424-5817-a1f6-65a978cd0689",
+        "acronym": "*",
+        "expansion": "Not a Part D Drug",
+        "explanation": "This drug is a non-Part D drug covered by Medi-Cal.",
+        "coverage_status": "Covered"
+      },
+      {
+        "state": "California",
+        "payer_id": "24c51377-14dc-4b02-b20e-8059b3a1d436",
+        "member_plan_id": "a2705950-8424-5817-a1f6-65a978cd0689",
+        "acronym": "NDS",
+        "expansion": "Non-Extended Day Supply",
+        "explanation": "This drug is not eligible for greater than a 1-month supply per fill.",
+        "coverage_status": "Covered with Conditions"
+      },
+      {
+        "state": "California",
+        "payer_id": "24c51377-14dc-4b02-b20e-8059b3a1d436",
+        "member_plan_id": "a2705950-8424-5817-a1f6-65a978cd0689",
+        "acronym": "NSO",
+        "expansion": "Non-Specialty Oral",
+        "explanation": "This tier includes commonly prescribed non-specialty oral drugs.",
+        "coverage_status": "Covered with Conditions"
+      },
+      {
+        "state": "California",
+        "payer_id": "24c51377-14dc-4b02-b20e-8059b3a1d436",
+        "member_plan_id": "20c105c8-6597-51a5-a693-5851938e28a8",
+        "acronym": "6",
+        "expansion": "Tier 6",
+        "explanation": "Select Care Drugs",
+        "coverage_status": "Covered"
+      }
+    ]
+  },
+  "accounts": {
+    "table": "crm.accounts",
+    "columns": [
+      "name",
+      "type",
+      "site",
+      "address",
+      "city",
+      "state",
+      "zip_code",
+      "country",
+      "phone",
+      "fax",
+      "email",
+      "website",
+      "npi",
+      "tax_id",
+      "status",
+      "owner_id",
+      "integration_id",
+      "mdm_id",
+      "external_id",
+      "state_code",
+      "signup_link",
+      "email_domain",
+      "organization_id"
+    ],
+    "records": [
+      {
+        "name": "Carte Blanche Beauty, Inc.",
+        "type": "MAH",
+        "status": "Active",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "name": "Huizhou Haosen Trading Co., Ltd.",
+        "type": "MAH",
+        "status": "Active",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "name": "8704147 Canada Inc",
+        "type": "MAH",
+        "status": "Active",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "name": "Zhongke Pharmaceutical (Foshan) Co., Ltd.",
+        "type": "MAH",
+        "status": "Active",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "name": "Guangzhou Shunfei Network Technology Co., Ltd.",
+        "type": "MAH",
+        "status": "Active",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      }
+    ]
+  },
+  "brands": {
+    "table": "crm.brands",
+    "columns": [
+      "brand_id",
+      "name",
+      "generic_name",
+      "product_labeler_code",
+      "manufacturer_id",
+      "status",
+      "uspi_label_content_asset_id",
+      "ignore_flag"
+    ],
+    "records": [
+      {
+        "brand_id": "8e3ff527-9f0b-42da-8963-ee2ec18b83d5",
+        "name": "Dextroamphetamine Sulfate Extended-Release",
+        "generic_name": "Dextroamphetamine Sulfate",
+        "product_labeler_code": "0115",
+        "manufacturer_id": "210eed73-20c8-4376-8027-1d04e11be000",
+        "status": "Active",
+        "ignore_flag": false
+      },
+      {
+        "brand_id": "c1cab358-0bd2-44ce-b408-9cc740f3f5da",
+        "name": "PreviDent 5000 Dry Mouth",
+        "generic_name": "Sodium fluoride",
+        "product_labeler_code": "0126",
+        "manufacturer_id": "9f0bce4b-33c2-4345-9215-3c03dd20ccb6",
+        "status": "Active",
+        "ignore_flag": true
+      },
+      {
+        "brand_id": "ee58c33c-c1ba-42cf-bfe9-c79e21f72201",
+        "name": "PreviDent 5000 Sensitive",
+        "generic_name": "Sodium fluoride and Potassium nitrate",
+        "product_labeler_code": "0126",
+        "manufacturer_id": "9f0bce4b-33c2-4345-9215-3c03dd20ccb6",
+        "status": "Active",
+        "ignore_flag": true
+      },
+      {
+        "brand_id": "cf0f0b0e-5ab8-4c50-a654-bc2916763dfc",
+        "name": "WELLBUTRIN XL",
+        "generic_name": "bupropion hydrochloride",
+        "product_labeler_code": "0187",
+        "manufacturer_id": "8fd3fddc-84fb-4eb6-84f2-051e175e4c1c",
+        "status": "Active",
+        "ignore_flag": false
+      },
+      {
+        "brand_id": "870fe641-63c5-4358-a5ae-cd6eafa64e82",
+        "name": "ISOVUE 200",
+        "generic_name": "IOPAMIDOL",
+        "product_labeler_code": "0270",
+        "manufacturer_id": "5e2dade8-bc75-47d1-8de4-e56cf65573ae",
+        "status": "Active",
+        "ignore_flag": false
+      }
+    ]
+  },
+  "products": {
+    "table": "crm.product_details",
+    "columns": [
+      "brand_id",
+      "product_ndc",
+      "product_id",
+      "dosage_form_name",
+      "route_of_administration_id",
+      "start_marketing_date",
+      "end_marketing_date",
+      "marketing_category_name",
+      "application_number",
+      "ndc_exclude_flag",
+      "ndc_package_code",
+      "package_description",
+      "active",
+      "dosage_strength",
+      "dosage_strength_unit",
+      "substance_name",
+      "pipeline_action_note",
+      "ignore_flag",
+      "dosage_unit"
+    ],
+    "records": [
+      {
+        "brand_id": "b5847de9-7e11-483e-8702-efa6978d512c",
+        "product_ndc": "0002-6120",
+        "product_id": "0002-6120_7481a510-805c-4f99-b6ae-7b44e70f5f55",
+        "dosage_form_name": "TABLET, COATED",
+        "route_of_administration_id": "7ab6db5b-61bb-40e2-bbfb-b25d53a5cc11",
+        "start_marketing_date": "2024-04-10",
+        "marketing_category_name": "NDA",
+        "application_number": "NDA218160",
+        "ndc_exclude_flag": false,
+        "ndc_package_code": "0002-6120-60",
+        "package_description": "60 TABLET, COATED in 1 BOTTLE (0002-6120-60) ",
+        "active": true,
+        "dosage_strength": "120",
+        "dosage_strength_unit": "mg/1",
+        "substance_name": "SELPERCATINIB",
+        "pipeline_action_note": "ALREADY_EXISTS_REFRESHED",
+        "ignore_flag": false
+      },
+      {
+        "brand_id": "e78e3cc3-dda6-462c-9041-d7cd275c8cc8",
+        "product_ndc": "70518-3704",
+        "product_id": "70518-3704_5907b8e8-d488-e588-e063-6294a90a08a1",
+        "dosage_form_name": "TABLET",
+        "route_of_administration_id": "7ab6db5b-61bb-40e2-bbfb-b25d53a5cc11",
+        "start_marketing_date": "2023-04-07",
+        "marketing_category_name": "ANDA",
+        "application_number": "ANDA211820",
+        "ndc_exclude_flag": false,
+        "ndc_package_code": "70518-3704-3",
+        "package_description": "90 TABLET in 1 BOTTLE, PLASTIC (70518-3704-3) ",
+        "active": true,
+        "dosage_strength": "300",
+        "dosage_strength_unit": "mg/1",
+        "substance_name": "ALLOPURINOL",
+        "pipeline_action_note": "ALREADY_EXISTS_REFRESHED",
+        "ignore_flag": false
+      },
+      {
+        "brand_id": "d7d6b003-a1ac-4729-a4c5-edeba81d6950",
+        "product_ndc": "0054-0471",
+        "product_id": "0054-0471_496ea375-42a1-422e-88ad-0b1c6df703aa",
+        "dosage_form_name": "TABLET",
+        "route_of_administration_id": "7ab6db5b-61bb-40e2-bbfb-b25d53a5cc11",
+        "start_marketing_date": "2020-03-10",
+        "marketing_category_name": "ANDA",
+        "application_number": "ANDA206133",
+        "ndc_exclude_flag": false,
+        "ndc_package_code": "0054-0471-21",
+        "package_description": "60 TABLET in 1 BOTTLE (0054-0471-21) ",
+        "active": true,
+        "dosage_strength": ".5",
+        "dosage_strength_unit": "mg/1",
+        "substance_name": "EVEROLIMUS",
+        "pipeline_action_note": "ALREADY_EXISTS_REFRESHED",
+        "ignore_flag": false
+      },
+      {
+        "brand_id": "e1b4ec82-805c-424c-b23f-4eaca20cad08",
+        "product_ndc": "0074-7094",
+        "product_id": "0074-7094_392c0320-ca25-423a-9bc1-d06f6badab07",
+        "dosage_form_name": "TABLET",
+        "route_of_administration_id": "7ab6db5b-61bb-40e2-bbfb-b25d53a5cc11",
+        "start_marketing_date": "2021-09-30",
+        "marketing_category_name": "NDA",
+        "application_number": "NDA215206",
+        "ndc_exclude_flag": false,
+        "ndc_package_code": "0074-7094-70",
+        "package_description": "4 TABLET in 1 BOTTLE (0074-7094-70) ",
+        "active": true,
+        "dosage_strength": "60",
+        "dosage_strength_unit": "mg/1",
+        "substance_name": "ATOGEPANT",
+        "pipeline_action_note": "ALREADY_EXISTS_REFRESHED",
+        "ignore_flag": false
+      },
+      {
+        "brand_id": "b691c6f3-d2d9-4535-b8c8-f8a871a328cd",
+        "product_ndc": "60505-4852",
+        "product_id": "60505-4852_ff96d3ff-6a1c-2545-b939-f383e0262179",
+        "dosage_form_name": "Tablet",
+        "route_of_administration_id": "7ab6db5b-61bb-40e2-bbfb-b25d53a5cc11",
+        "marketing_category_name": "NDA",
+        "application_number": "NDA020717",
+        "ndc_exclude_flag": false,
+        "package_description": "30 TABLET in 1 BOTTLE (60505-4852-3) ",
+        "active": true,
+        "substance_name": "Modafinil",
+        "ignore_flag": false
+      }
+    ]
+  },
+  "formulary-product-coverage": {
+    "table": "crm.formulary_product_coverage",
+    "columns": [
+      "payer_id",
+      "plan_id",
+      "map_status",
+      "effective_date",
+      "expiry_date",
+      "parent_id",
+      "formulary_id"
+    ],
+    "records": [
+      {
+        "payer_id": "69aa1385-b04a-492c-8def-960fb098a365",
+        "plan_id": "1b814133-46c7-4cea-b81d-635099ce61bb",
+        "map_status": "active",
+        "effective_date": "2026-08-27",
+        "formulary_id": "f67c7912-e962-5052-bf1b-130ba4864cc7"
+      },
+      {
+        "payer_id": "69aa1385-b04a-492c-8def-960fb098a365",
+        "plan_id": "1b814133-46c7-4cea-b81d-635099ce61bb",
+        "map_status": "active",
+        "effective_date": "2026-08-27",
+        "formulary_id": "337b65ef-6ae8-4c3f-a6a9-1f19347d8ebc"
+      },
+      {
+        "payer_id": "69aa1385-b04a-492c-8def-960fb098a365",
+        "plan_id": "1b814133-46c7-4cea-b81d-635099ce61bb",
+        "map_status": "active",
+        "effective_date": "2026-08-27",
+        "formulary_id": "f2cd3cec-c9a7-4354-94c9-c215964ddd0d"
+      },
+      {
+        "payer_id": "69aa1385-b04a-492c-8def-960fb098a365",
+        "plan_id": "1b814133-46c7-4cea-b81d-635099ce61bb",
+        "map_status": "active",
+        "effective_date": "2026-08-27",
+        "formulary_id": "626a8db5-255a-4acc-a146-4bf3e4e4fde1"
+      },
+      {
+        "payer_id": "69aa1385-b04a-492c-8def-960fb098a365",
+        "plan_id": "1b814133-46c7-4cea-b81d-635099ce61bb",
+        "map_status": "active",
+        "effective_date": "2026-08-27",
+        "formulary_id": "7e3b1750-84cc-4fbe-9a4f-568b4181f1d3"
+      }
+    ]
+  },
+  "content-assets": {
+    "table": "crm.content_assets",
+    "columns": [
+      "entity_type",
+      "entity_id",
+      "original_filename",
+      "storage_key",
+      "mime_type",
+      "size_bytes",
+      "storage_provider",
+      "content_type",
+      "content_template_id",
+      "active",
+      "organization_id",
+      "processing_status",
+      "external_job_ref",
+      "error_message"
+    ],
+    "records": [
+      {
+        "entity_type": "payer_based_plans",
+        "entity_id": "786a2df0-3cde-5591-b435-2f2a8ed67b0e",
+        "original_filename": "basic-mt-2026.pdf",
+        "storage_key": "mt/documents/rx-drugs/drug-lists/basic-mt-2026.pdf",
+        "mime_type": "application/pdf",
+        "size_bytes": 0,
+        "storage_provider": "s3",
+        "active": true
+      },
+      {
+        "entity_type": "payer_based_plans",
+        "entity_id": "ff1b88d3-b498-49fe-98bb-2c7e42c39022",
+        "original_filename": "SC004-2026-SNP-FORMULARY-EN-508",
+        "storage_key": "members/sc/en-us/mem/medicare/-/media/Molina/PublicWebsite/PDF/members/common/en-us/Medicare/2026%20Documents/Comprehensive%20Formulary/SC004-2026-SNP-FORMULARY-EN-508",
+        "mime_type": "application/pdf",
+        "size_bytes": 0,
+        "storage_provider": "s3",
+        "active": true
+      },
+      {
+        "entity_type": "payer_based_plans",
+        "entity_id": "2765638b-6e53-5ed3-9ca1-92d4c7f9d602",
+        "original_filename": "ba3df152-4a74-baa5-36aa-3764c1035905",
+        "storage_key": "sales/documents/418701/452257/S1030_CFESL26_C+AUGUST+508C+Updated+07.2026.pdf/ba3df152-4a74-baa5-36aa-3764c1035905",
+        "mime_type": "application/pdf",
+        "size_bytes": 0,
+        "storage_provider": "s3",
+        "active": true
+      },
+      {
+        "entity_type": "payer_based_plans",
+        "entity_id": "ecac8404-38d3-5fa5-bf1c-539aead694e2",
+        "original_filename": "1082136GAMENABS_0150.pdf",
+        "storage_key": "MED2026/1082136GAMENABS_0150.pdf",
+        "mime_type": "application/pdf",
+        "size_bytes": 0,
+        "storage_provider": "s3",
+        "active": true
+      },
+      {
+        "entity_type": "payer_based_plans",
+        "entity_id": "ab5f78d6-8dd4-42a9-99b3-0fd47c191ad6",
+        "original_filename": "January_2026_Commercial_Formulary.pdf",
+        "storage_key": "application/files/7217/6418/4071/January_2026_Commercial_Formulary.pdf",
+        "mime_type": "application/pdf",
+        "size_bytes": 0,
+        "storage_provider": "s3",
+        "active": true
+      }
+    ]
+  },
+  "audit-log": {
+    "table": "crm.audit_log",
+    "columns": [
+      "name",
+      "old_value",
+      "new_value",
+      "data_object_name",
+      "field_name",
+      "record_id",
+      "operation_type",
+      "request_id",
+      "transaction_id"
+    ],
+    "records": [
+      {
+        "name": "AUD-0000039749",
+        "old_value": "Walmart, Inc.",
+        "data_object_name": "accounts",
+        "field_name": "name",
+        "record_id": "e639aa7a-1a6a-535f-944d-6cf1dde8f3ec",
+        "operation_type": "DELETE"
+      },
+      {
+        "name": "AUD-0000039750",
+        "old_value": "Lifestar Pharma LLC.",
+        "data_object_name": "accounts",
+        "field_name": "name",
+        "record_id": "e61af0da-62c0-5e9b-b9a2-67aeb354ef0a",
+        "operation_type": "DELETE"
+      },
+      {
+        "name": "AUD-0000039751",
+        "old_value": "Prodose, Inc",
+        "data_object_name": "accounts",
+        "field_name": "name",
+        "record_id": "7d8e07ef-9bcf-5f9f-9c36-2607618b5b28",
+        "operation_type": "DELETE"
+      },
+      {
+        "name": "AUD-0000039752",
+        "old_value": "Productos Zapotol Corp.",
+        "data_object_name": "accounts",
+        "field_name": "name",
+        "record_id": "829414f2-dd9d-5b54-b1cc-d606f85e6ed3",
+        "operation_type": "DELETE"
+      },
+      {
+        "name": "AUD-0000039753",
+        "old_value": "FOSUN PHARMA USA INC",
+        "data_object_name": "accounts",
+        "field_name": "name",
+        "record_id": "8efa7175-0a1b-5f06-98d1-da9f8447ed75",
+        "operation_type": "DELETE"
+      }
+    ]
+  },
+  "routes": {
+    "table": "crm.routes_of_administration",
+    "columns": [
+      "name",
+      "definition",
+      "short_name",
+      "fda_code",
+      "nci_concept_id"
+    ],
+    "records": [
+      {
+        "name": "Extra-Amniotic",
+        "definition": "Administration to the outside of the membrane enveloping the fetus",
+        "short_name": "X-AMNI",
+        "fda_code": "402",
+        "nci_concept_id": "C38211"
+      },
+      {
+        "name": "Hemodialysis",
+        "definition": "Administration through hemodialysate fluid.",
+        "short_name": "HEMO",
+        "fda_code": "140",
+        "nci_concept_id": "C38200"
+      },
+      {
+        "name": "Infiltration",
+        "definition": "Administration that results in substances passing into tissue spaces or into cells.",
+        "short_name": "INFIL",
+        "fda_code": "361",
+        "nci_concept_id": "C38215"
+      },
+      {
+        "name": "Interstitial",
+        "definition": "Administration to or in the interstices of a tissue.",
+        "short_name": "INTERSTIT",
+        "fda_code": "088",
+        "nci_concept_id": "C38219"
+      },
+      {
+        "name": "Intra-Abdominal",
+        "definition": "Administration within the abdomen.",
+        "short_name": "I-ABDOM",
+        "fda_code": "056",
+        "nci_concept_id": "C38220"
+      }
+    ]
+  },
+  "route-mapping": {
+    "table": "crm.route_mapping",
+    "columns": [
+      "mapping_id",
+      "route_of_administration_id",
+      "organization_id"
+    ],
+    "records": [
+      {
+        "mapping_id": "c300646c-5830-45ab-b71d-e21e2e1d101b",
+        "route_of_administration_id": "088d8082-02b8-4e21-bdb3-6a5a84336f4c",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "mapping_id": "34eaccc2-fd82-424f-9c8b-39b8afe276b6",
+        "route_of_administration_id": "24e380d0-03c0-4c9d-a9ec-90837cfd0029",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "mapping_id": "34eaccc2-fd82-424f-9c8b-39b8afe276b6",
+        "route_of_administration_id": "920b7240-ed0c-4237-b6fa-087e4ac462c9",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "mapping_id": "1bd8e79d-c38a-4518-87ea-901aaab08cf6",
+        "route_of_administration_id": "79b380ac-fe73-4a25-a8a1-43647dde8633",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      },
+      {
+        "mapping_id": "43d98c34-2d07-45a6-825b-969d6c649346",
+        "route_of_administration_id": "8d546085-8759-4b55-97c2-8a9335eb3faa",
+        "organization_id": "00000000-0000-4000-8000-000000000001"
+      }
+    ]
+  }
+}
