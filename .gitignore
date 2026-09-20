@@ -1,8 +1,7 @@
 __pycache__/
 *.pyc
-.env
-*.pyc
 *.pyo
+.env
 .pytest_cache/
 *.egg-info/
 dist/
@@ -10,3 +9,14 @@ build/
 venv/
 .venv/
 *.log
+*.json
+check_*.py
+copy_*.py
+create_*_db.py
+fix_*.py
+fetch_*.py
+load_*.py
+insert_*.py
+swagger_*.py
+test_*.py
+sample_*
