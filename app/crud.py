@@ -178,7 +178,13 @@ def get_rows(
         """, (cfg["schema"], cfg["table"]))
         real_cols = {r["column_name"] for r in cur.fetchall()}
 
-        safe_filters = {k: v for k, v in (filters or {}).items() if k in real_cols}
+        unknown = sorted([k for k in (filters or {}) if k not in real_cols])
+        if unknown:
+            raise ValueError(
+                f"Unknown filter column(s): {unknown}. "
+                f"Valid columns: {sorted(real_cols)}"
+            )
+        safe_filters = dict(filters or {})
 
         where_clause = ""
         where_values: list[Any] = []

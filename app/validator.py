@@ -119,9 +119,15 @@ _TYPE_MAP = {
 }
 
 
-def validate_row(slug: str, row: dict[str, Any], skip_unique: bool = False) -> list[str]:
+def validate_row(
+    slug: str,
+    row: dict[str, Any],
+    skip_unique: bool = False,
+    enforce_required: bool = False,
+) -> list[str]:
     """Validate a single row against DB schema constraints.
-    Returns a list of error messages (empty = valid)."""
+    enforce_required=True → missing NOT NULL (no-default) columns are errors
+    (used for CREATE and full-replace PUT). Returns error list (empty = valid)."""
     cfg = get_table_config(slug)
     if cfg is None:
         return [f"Unknown slug: {slug}"]
@@ -131,7 +137,13 @@ def validate_row(slug: str, row: dict[str, Any], skip_unique: bool = False) -> l
 
     columns = _load_column_metadata(schema, table)
     col_map = {c["column_name"]: c for c in columns}
-    user_cols = set(cfg["user_columns"])
+
+    # 0) Required fields — NOT NULL with no DB default must be present
+    if enforce_required:
+        from app.table_config import get_required_columns
+        for req_col in get_required_columns(schema, table):
+            if req_col not in row or row[req_col] is None:
+                errors.append(f"Column '{req_col}' is required")
 
     # 1) Check for unknown columns
     for field in row:
@@ -228,10 +240,11 @@ def validate_row(slug: str, row: dict[str, Any], skip_unique: bool = False) -> l
 
 
 def validate_batch(slug: str, data: list[dict[str, Any]]) -> list[str]:
-    """Validate all rows in a batch. Returns combined error list."""
+    """Validate all rows in a batch (required fields enforced).
+    Returns combined error list."""
     all_errors: list[str] = []
     for i, row in enumerate(data):
-        row_errors = validate_row(slug, row)
+        row_errors = validate_row(slug, row, enforce_required=True)
         for err in row_errors:
             all_errors.append(f"Row {i + 1}: {err}")
     return all_errors
@@ -239,11 +252,13 @@ def validate_batch(slug: str, data: list[dict[str, Any]]) -> list[str]:
 
 def validate_update(slug: str, data: dict[str, Any], partial: bool = True) -> list[str]:
     """Validate an UPDATE payload (types, lengths, CHECKs; UNIQUE skipped —
-    DB enforces it and reports the real conflict)."""
+    DB enforces it and reports the real conflict).
+    Full-replace PUT also enforces required fields; PATCH does not."""
     cfg = get_table_config(slug)
     if cfg is None:
         return [f"Unknown slug: {slug}"]
     if not data:
         return ["Empty update payload"]
     # PK is immutable (stripped by crud); validate everything else
-    return validate_row(slug, dict(data), skip_unique=True)
+    return validate_row(slug, dict(data), skip_unique=True,
+                        enforce_required=not partial)

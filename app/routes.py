@@ -40,9 +40,11 @@ def _require_cfg(table_slug: str):
 
 
 def _conflict_or_500(e: Exception) -> HTTPException:
-    """Map FK RESTRICT / trigger blocks / unique violations to 409;
-    everything else to a generic 500 (no DB internals leaked)."""
+    """Map DB data-rule errors to clean codes (no DB internals leaked):
+    not-null → 400, FK RESTRICT / trigger blocks / unique → 409, rest → 500."""
     msg = str(e).lower()
+    if "violates not-null" in msg or "null value in column" in msg or "not-null constraint" in msg:
+        return HTTPException(status_code=400, detail="Invalid data: a required field is missing or null")
     if any(k in msg for k in (
         "foreign key", "violates foreign", "violates unique", "unique constraint",
         "restrict", "prevent_pbp_delete", "already exists", "duplicate",
@@ -82,6 +84,8 @@ def list_tables(user: dict = Depends(require_auth)):
             slug=slug,
             table=f"{cfg['schema']}.{cfg['table']}",
             user_columns=cfg["user_columns"],
+            required_columns=cfg.get("required_columns", []),
+            pk_column=cfg.get("pk_column", "id"),
         )
         for slug, cfg in sorted(configs.items())
     ]

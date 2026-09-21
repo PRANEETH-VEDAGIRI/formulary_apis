@@ -78,3 +78,11 @@ class TableInfo(BaseModel):
     slug: str
     table: str
     user_columns: list[str]
+    required_columns: list[str] = Field(
+        default_factory=list,
+        description="Columns you MUST supply (NOT NULL, no DB default).",
+    )
+    pk_column: str = Field(
+        default="id",
+        description="Primary key column (DB-generated on create; never send it).",
+    )
