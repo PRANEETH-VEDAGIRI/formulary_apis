@@ -66,11 +66,21 @@ class TokenResponse(BaseModel):
 
 @auth_router.post("/token", response_model=TokenResponse)
 def generate_token(req: TokenRequest):
-    """Generate a JWT token. In production, validate against your identity provider.
-    For now, accepts any non-empty username/password pair."""
+    """Mint a JWT token — ONLY for the single server-side credential pair
+    (API_USERNAME / API_PASSWORD from environment). Everything else → 401.
+    If the pair is not configured, issuance is disabled (fail closed)."""
+    import hmac
+    from config import API_USERNAME, API_PASSWORD
+
+    if not API_USERNAME or not API_PASSWORD:
+        raise HTTPException(status_code=500, detail="Token issuance is not configured on this server")
     if not req.username or not req.password:
         raise HTTPException(status_code=400, detail="Username and password required")
-    token = create_token({"sub": req.username, "role": "admin"})
+    user_ok = hmac.compare_digest(req.username, API_USERNAME)
+    pass_ok = hmac.compare_digest(req.password, API_PASSWORD)
+    if not (user_ok and pass_ok):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    token = create_token({"sub": API_USERNAME, "role": "admin"})
     return TokenResponse(access_token=token)
 
 

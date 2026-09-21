@@ -21,3 +21,8 @@ PAGE_SIZE_MAX = 10000
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production-use-a-real-secret")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 JWT_EXPIRY_MINUTES = int(os.getenv("JWT_EXPIRY_MINUTES", "60"))
+
+# Single API credential — the ONLY username/password that can mint tokens.
+# Set via environment (DevOps). If unset, token issuance is disabled (fail closed).
+API_USERNAME = os.getenv("API_USERNAME", "")
+API_PASSWORD = os.getenv("API_PASSWORD", "")
