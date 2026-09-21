@@ -136,37 +136,42 @@ def create_record(
 
 
 # ── READ — list (paginated + filterable) ────────────────────────────
-@router.get("/{table_slug}", response_model=ListResponse)
-def list_records(
-    table_slug: str,
-    request: Request,
-    page: int = Query(default=1, ge=1, description="Page number (1-indexed)"),
-    page_size: int = Query(default=PAGE_SIZE_DEFAULT, ge=1, le=PAGE_SIZE_MAX, description="Rows per page"),
-    user: dict = Depends(require_auth),
-):
-    """List rows with pagination. Any extra query param filters by exact match,
-    e.g. ?status=active&type=Commercial (unknown columns are ignored)."""
-    _require_cfg(table_slug)
-
-    filters = {
-        k: v for k, v in request.query_params.items()
-        if k not in ("page", "page_size")
-    } or None
-
-    try:
-        rows, total = crud.get_rows(table_slug, filters=filters, page=page, page_size=page_size)
-        return ListResponse(
-            success=True,
-            table=table_slug,
-            total=total,
-            page=page,
-            page_size=min(page_size, PAGE_SIZE_MAX),
-            data=rows,
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise _conflict_or_500(e)
+# NOTE (disabled 2026-09-21): GET /{table_slug} list endpoint is COMMENTED OUT,
+# not deleted. Reason: COUNT(*) over giant tables (45M DFD / 680M coverage rows)
+# crawls in production. Re-enable by uncommenting the block below once the
+# estimate-based fast-path for `total` is implemented. crud.get_rows() stays
+# intact and is still used by nothing else at the moment.
+# @router.get("/{table_slug}", response_model=ListResponse)
+# def list_records(
+#     table_slug: str,
+#     request: Request,
+#     page: int = Query(default=1, ge=1, description="Page number (1-indexed)"),
+#     page_size: int = Query(default=PAGE_SIZE_DEFAULT, ge=1, le=PAGE_SIZE_MAX, description="Rows per page"),
+#     user: dict = Depends(require_auth),
+# ):
+#     """List rows with pagination. Any extra query param filters by exact match,
+#     e.g. ?status=active&type=Commercial (unknown columns are ignored)."""
+#     _require_cfg(table_slug)
+#
+#     filters = {
+#         k: v for k, v in request.query_params.items()
+#         if k not in ("page", "page_size")
+#     } or None
+#
+#     try:
+#         rows, total = crud.get_rows(table_slug, filters=filters, page=page, page_size=page_size)
+#         return ListResponse(
+#             success=True,
+#             table=table_slug,
+#             total=total,
+#             page=page,
+#             page_size=min(page_size, PAGE_SIZE_MAX),
+#             data=rows,
+#         )
+#     except ValueError as e:
+#         raise HTTPException(status_code=400, detail=str(e))
+#     except Exception as e:
+#         raise _conflict_or_500(e)
 
 
 # ── READ — single ───────────────────────────────────────────────────
