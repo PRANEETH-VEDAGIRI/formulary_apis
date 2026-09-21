@@ -78,16 +78,44 @@ POST /api/v1/formulary/{table_slug}
 }
 ```
 
-**Response:**
+**Response (single):**
 ```json
 {
   "success": true,
   "table": "payers",
   "inserted": 1,
-  "ids": ["768848f3-42d0-4c09-af43-feb3b86223a9"],
+  "payer_id": "768848f3-42d0-4c09-af43-feb3b86223a9",
   "message": "1 row(s) created"
 }
 ```
+
+**Response (batch — value becomes a list):**
+```json
+{
+  "success": true,
+  "table": "routes",
+  "inserted": 2,
+  "route_id": ["4fad0d9f-59ea-4fe2-9362-99c4f6bfdad3", "cf4acc5d-8234-4824-8a66-5b147d46092b"],
+  "message": "2 row(s) created"
+}
+```
+
+Each table returns its PK under a named key:
+
+| Slug | Response key |
+|------|--------------|
+| `payers` | `payer_id` |
+| `plans` | `plan_id` |
+| `drug-formulary` | `formulary_id` |
+| `acronyms` | `acronym_id` |
+| `accounts` | `account_id` |
+| `brands` | `brand_id` |
+| `products` | `product_id` |
+| `formulary-product-coverage` | `coverage_id` |
+| `content-assets` | `asset_id` |
+| `audit-log` | `audit_id` |
+| `routes` | `route_id` |
+| `route-mapping` | `mapping_id` |
 
 ### Batch Create
 

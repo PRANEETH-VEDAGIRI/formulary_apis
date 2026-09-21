@@ -49,6 +49,27 @@ SLUG_MAP = {
     "route-mapping":           ("crm", "route_mapping"),
 }
 
+# Semantic name for the created PK, per slug — used as the response key
+# so callers know exactly which ID they got back for FK chaining.
+ID_KEYS = {
+    "payers":                     "payer_id",
+    "plans":                      "plan_id",
+    "drug-formulary":             "formulary_id",
+    "acronyms":                   "acronym_id",
+    "accounts":                   "account_id",
+    "brands":                     "brand_id",
+    "products":                   "product_id",
+    "formulary-product-coverage": "coverage_id",
+    "content-assets":             "asset_id",
+    "audit-log":                  "audit_id",
+    "routes":                     "route_id",
+    "route-mapping":              "mapping_id",
+}
+
+
+def get_id_key(slug: str) -> str:
+    return ID_KEYS.get(slug, "id")
+
 
 def _ensure_loaded():
     global _LOADED

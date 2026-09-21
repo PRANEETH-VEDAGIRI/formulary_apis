@@ -1,7 +1,7 @@
 """Pydantic request / response schemas — CREATE only."""
 from __future__ import annotations
 from typing import Any
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class CreateRequest(BaseModel):
@@ -13,13 +13,15 @@ class CreateRequest(BaseModel):
 
 
 class CreateResponse(BaseModel):
+    """Response for a create call. Includes the created PK under a
+    table-specific key (e.g. payer_id, plan_id, brand_id) so callers
+    know exactly which ID to use for FK chaining."""
+
+    model_config = ConfigDict(extra="allow")
+
     success: bool
     table: str
     inserted: int
-    ids: list[str] = Field(
-        default_factory=list,
-        description="Auto-generated IDs of created rows. Use these for FK references in child tables.",
-    )
     message: str
 
 
