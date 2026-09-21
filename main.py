@@ -1,13 +1,12 @@
 """
 Formulary Extraction APIs — FastAPI entry point.
-Single endpoint: POST /api/v1/formulary/{table_slug}
 """
 import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_pool, close_pool
-from app.routes import router
+from app.routes import router, auth_router
 from config import API_TITLE, API_VERSION
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -36,6 +35,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth_router)
 app.include_router(router)
 
 

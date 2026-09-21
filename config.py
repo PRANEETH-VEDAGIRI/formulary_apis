@@ -16,3 +16,8 @@ API_TITLE = "Formulary Extraction APIs"
 API_VERSION = "1.0.0"
 PAGE_SIZE_DEFAULT = 100
 PAGE_SIZE_MAX = 10000
+
+# JWT Authentication
+JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production-use-a-real-secret")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+JWT_EXPIRY_MINUTES = int(os.getenv("JWT_EXPIRY_MINUTES", "60"))
