@@ -119,7 +119,7 @@ _TYPE_MAP = {
 }
 
 
-def validate_row(slug: str, row: dict[str, Any]) -> list[str]:
+def validate_row(slug: str, row: dict[str, Any], skip_unique: bool = False) -> list[str]:
     """Validate a single row against DB schema constraints.
     Returns a list of error messages (empty = valid)."""
     cfg = get_table_config(slug)
@@ -204,8 +204,9 @@ def validate_row(slug: str, row: dict[str, Any]) -> list[str]:
                 )
 
     # 4) UNIQUE constraints — check if value already exists
+    # (skipped for UPDATE: the row itself would self-collide; DB is final arbiter)
     uniques = _load_unique_constraints(schema, table)
-    if uniques:
+    if uniques and not skip_unique:
         with get_cursor() as cur:
             for uq_cols in uniques:
                 provided = [c for c in uq_cols if c in row and row[c] is not None]
@@ -234,3 +235,15 @@ def validate_batch(slug: str, data: list[dict[str, Any]]) -> list[str]:
         for err in row_errors:
             all_errors.append(f"Row {i + 1}: {err}")
     return all_errors
+
+
+def validate_update(slug: str, data: dict[str, Any], partial: bool = True) -> list[str]:
+    """Validate an UPDATE payload (types, lengths, CHECKs; UNIQUE skipped —
+    DB enforces it and reports the real conflict)."""
+    cfg = get_table_config(slug)
+    if cfg is None:
+        return [f"Unknown slug: {slug}"]
+    if not data:
+        return ["Empty update payload"]
+    # PK is immutable (stripped by crud); validate everything else
+    return validate_row(slug, dict(data), skip_unique=True)
