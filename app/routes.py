@@ -1,42 +1,35 @@
 """
-Routes — full CRUD for all 12 formulary tables (JWT-protected).
+Routes — one explicit JWT-protected endpoint set per table (no slug typing).
 
-GET    /api/v1/formulary/tables          — list slugs + user columns
-POST   /api/v1/formulary/{slug}          — create one or many rows
-GET    /api/v1/formulary/{slug}          — list rows (paginated, filterable)
-GET    /api/v1/formulary/{slug}/{id}     — get single row by ID
-PUT    /api/v1/formulary/{slug}/{id}     — full replace (all user cols)
-PATCH  /api/v1/formulary/{slug}/{id}     — partial update (only sent fields)
-DELETE /api/v1/formulary/{slug}/{id}     — delete row by ID
-POST   /api/v1/auth/token                — generate JWT token
+Per table <slug> (e.g. payers, plans, drug-formulary):
+  POST   /api/v1/formulary/<slug>            — create one row or a batch
+  GET    /api/v1/formulary/<slug>/{row_id}   — get one row by ID
+  PUT    /api/v1/formulary/<slug>/{row_id}   — full replace (all user cols)
+  PATCH  /api/v1/formulary/<slug>/{row_id}   — partial update (sent fields only)
+  DELETE /api/v1/formulary/<slug>/{row_id}   — delete row by ID
+
+Plus:
+  GET    /api/v1/formulary/tables  — slugs, columns, required columns, PKs
+  POST   /api/v1/auth/token        — mint JWT (single server credential only)
+
+Every request body is pre-filled in Swagger with ALL input columns and sample
+values — the user only edits values and executes. Missing REQUIRED columns
+fail with 422 before anything touches the DB.
 """
-from __future__ import annotations
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Path
 from pydantic import BaseModel
 from app.schemas import (
-    CreateRequest, CreateResponse,
-    UpdateRequest, UpdateResponse,
+    CreateResponse, UpdateResponse,
     RowResponse, ListResponse,
     DeleteResponse, TableInfo,
 )
-from app.table_config import SLUG_MAP, get_table_config, get_all_configs, get_id_key
+from app.table_config import get_all_configs, get_id_key
 from app.auth import create_token, require_auth
 from app.validator import validate_batch, validate_update
 from app import crud
-from config import PAGE_SIZE_DEFAULT, PAGE_SIZE_MAX
 
 router = APIRouter(prefix="/api/v1/formulary", tags=["formulary"])
 auth_router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
-
-
-def _require_cfg(table_slug: str):
-    cfg = get_table_config(table_slug)
-    if cfg is None:
-        raise HTTPException(
-            status_code=404,
-            detail=f"Unknown table '{table_slug}'. Available: {', '.join(sorted(SLUG_MAP.keys()))}",
-        )
-    return cfg
 
 
 def _conflict_or_500(e: Exception) -> HTTPException:
@@ -84,10 +77,10 @@ def generate_token(req: TokenRequest):
     return TokenResponse(access_token=token)
 
 
-# ── List available tables (must come before /{slug} routes) ─────────
+# ── Tables meta ─────────────────────────────────────────────────────
 @router.get("/tables", response_model=list[TableInfo])
 def list_tables(user: dict = Depends(require_auth)):
-    """List all available table slugs and the columns the user must provide."""
+    """Reference: every table with its input columns, REQUIRED columns, and PK."""
     configs = get_all_configs()
     return [
         TableInfo(
@@ -101,196 +94,138 @@ def list_tables(user: dict = Depends(require_auth)):
     ]
 
 
-# ── CREATE ──────────────────────────────────────────────────────────
-@router.post("/{table_slug}", response_model=CreateResponse)
-def create_record(
-    table_slug: str,
-    req: CreateRequest,
-    user: dict = Depends(require_auth),
-):
-    """Create one or more rows. DB generates the ID; response returns the
-    DB-created PK under a table-specific key (e.g. payer_id) for FK chaining."""
-    _require_cfg(table_slug)
+# ── Per-table endpoints (registered at startup — see register_table_routes) ──
+def register_table_routes(app) -> None:
+    """Create 5 explicit endpoints per table from the live DB schema.
 
-    payload = req.data if isinstance(req.data, list) else [req.data]
+    Called once at startup (after pool init). Each endpoint gets its own
+    Swagger section, its own pre-filled request body (ALL columns + samples),
+    and returns the created/updated PK under the table's named key
+    (payer_id, plan_id, …) for FK chaining.
 
-    errors = validate_batch(table_slug, payload)
-    if errors:
-        raise HTTPException(status_code=422, detail=errors)
+    Routes are added directly to the FastAPI ``app`` (not the shared router)
+    so they appear even though ``app.include_router(router)`` was called earlier.
+    """
+    from app.table_models import build_table_specs
 
-    try:
-        ids = crud.create_rows(table_slug, payload)
-        id_key = get_id_key(table_slug)
-        id_value = ids[0] if len(ids) == 1 else ids
-        return CreateResponse(
-            success=True,
-            table=table_slug,
-            inserted=len(ids),
-            message=f"{len(ids)} row(s) created",
-            **{id_key: id_value},
-        )
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise _conflict_or_500(e)
+    for spec in build_table_specs():
+        slug = spec["slug"]
+        tag = spec["label"]
+        id_key = spec["id_key"]
+        id_desc = f"{id_key} — UUID from this table's POST response. DB-owned, never sent in bodies."
+        _register_one_table(app, slug, tag, id_key, id_desc, spec)
 
 
-# ── READ — list (paginated + filterable) ────────────────────────────
-# NOTE (disabled 2026-09-21): GET /{table_slug} list endpoint is COMMENTED OUT,
-# not deleted. Reason: COUNT(*) over giant tables (45M DFD / 680M coverage rows)
-# crawls in production. Re-enable by uncommenting the block below once the
-# estimate-based fast-path for `total` is implemented. crud.get_rows() stays
-# intact and is still used by nothing else at the moment.
-# @router.get("/{table_slug}", response_model=ListResponse)
-# def list_records(
-#     table_slug: str,
-#     request: Request,
-#     page: int = Query(default=1, ge=1, description="Page number (1-indexed)"),
-#     page_size: int = Query(default=PAGE_SIZE_DEFAULT, ge=1, le=PAGE_SIZE_MAX, description="Rows per page"),
-#     user: dict = Depends(require_auth),
-# ):
-#     """List rows with pagination. Any extra query param filters by exact match,
-#     e.g. ?status=active&type=Commercial (unknown columns are ignored)."""
-#     _require_cfg(table_slug)
-#
-#     filters = {
-#         k: v for k, v in request.query_params.items()
-#         if k not in ("page", "page_size")
-#     } or None
-#
-#     try:
-#         rows, total = crud.get_rows(table_slug, filters=filters, page=page, page_size=page_size)
-#         return ListResponse(
-#             success=True,
-#             table=table_slug,
-#             total=total,
-#             page=page,
-#             page_size=min(page_size, PAGE_SIZE_MAX),
-#             data=rows,
-#         )
-#     except ValueError as e:
-#         raise HTTPException(status_code=400, detail=str(e))
-#     except Exception as e:
-#         raise _conflict_or_500(e)
+def _register_one_table(app, slug: str, tag: str, id_key: str, id_desc: str, spec: dict) -> None:
+    BodyType = spec["BodyType"]
+    PatchModel = spec["PatchModel"]
+    CreateModel = spec["CreateModel"]
 
+    # ── CREATE (single row or batch) ──
+    def create_row(payload: BodyType, user: dict = Depends(require_auth)):
+        rows = payload if isinstance(payload, list) else [payload]
+        dicts = [r.model_dump(exclude_unset=True) for r in rows]
+        errors = validate_batch(slug, dicts)
+        if errors:
+            raise HTTPException(status_code=422, detail=errors)
+        try:
+            ids = crud.create_rows(slug, dicts)
+            id_value = ids[0] if len(ids) == 1 else ids
+            return CreateResponse(
+                success=True, table=slug, inserted=len(ids),
+                message=f"{len(ids)} row(s) created", **{id_key: id_value},
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise _conflict_or_500(e)
 
-# ── READ — single ───────────────────────────────────────────────────
-@router.get("/{table_slug}/{row_id}", response_model=RowResponse)
-def get_record(
-    table_slug: str,
-    row_id: str,
-    user: dict = Depends(require_auth),
-):
-    """Fetch a single row by its ID."""
-    _require_cfg(table_slug)
+    create_row.__name__ = f"create_{spec['func']}"
 
-    try:
-        row = crud.get_row_by_id(table_slug, row_id)
-        if row is None:
-            raise HTTPException(status_code=404, detail=f"Record '{row_id}' not found in '{table_slug}'")
-        return RowResponse(success=True, table=table_slug, data=row)
-    except HTTPException:
-        raise
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise _conflict_or_500(e)
+    # ── READ one ──
+    def get_row(row_id: str = Path(..., description=id_desc), user: dict = Depends(require_auth)):
+        try:
+            row = crud.get_row_by_id(slug, row_id)
+            if row is None:
+                raise HTTPException(status_code=404, detail=f"Record '{row_id}' not found in '{slug}'")
+            return RowResponse(success=True, table=slug, data=row)
+        except HTTPException:
+            raise
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise _conflict_or_500(e)
 
+    get_row.__name__ = f"get_{spec['func']}"
 
-# ── UPDATE — full (PUT) ─────────────────────────────────────────────
-@router.put("/{table_slug}/{row_id}", response_model=UpdateResponse)
-def replace_record(
-    table_slug: str,
-    row_id: str,
-    req: UpdateRequest,
-    user: dict = Depends(require_auth),
-):
-    """Full update — replaces ALL user columns. PK is immutable (DB owns it)."""
-    _require_cfg(table_slug)
+    # ── UPDATE full (PUT) ──
+    def replace_row(payload: CreateModel, row_id: str = Path(..., description=id_desc),
+                    user: dict = Depends(require_auth)):
+        data = payload.model_dump(exclude_unset=True)
+        errors = validate_update(slug, data, partial=False)
+        if errors:
+            raise HTTPException(status_code=422, detail=errors)
+        try:
+            updated = crud.update_row(slug, row_id, data, partial=False)
+            if updated is None:
+                raise HTTPException(status_code=404, detail=f"Record '{row_id}' not found in '{slug}'")
+            return UpdateResponse(success=True, table=slug, updated=1,
+                                  message="1 row(s) updated", **{id_key: updated})
+        except HTTPException:
+            raise
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise _conflict_or_500(e)
 
-    errors = validate_update(table_slug, req.data, partial=False)
-    if errors:
-        raise HTTPException(status_code=422, detail=errors)
+    replace_row.__name__ = f"replace_{spec['func']}"
 
-    try:
-        updated_id = crud.update_row(table_slug, row_id, req.data, partial=False)
-        if updated_id is None:
-            raise HTTPException(status_code=404, detail=f"Record '{row_id}' not found in '{table_slug}'")
-        id_key = get_id_key(table_slug)
-        return UpdateResponse(
-            success=True,
-            table=table_slug,
-            updated=1,
-            message="1 row(s) updated",
-            **{id_key: updated_id},
-        )
-    except HTTPException:
-        raise
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise _conflict_or_500(e)
+    # ── UPDATE partial (PATCH) ──
+    def patch_row(payload: PatchModel, row_id: str = Path(..., description=id_desc),
+                  user: dict = Depends(require_auth)):
+        data = payload.model_dump(exclude_unset=True)
+        errors = validate_update(slug, data, partial=True)
+        if errors:
+            raise HTTPException(status_code=422, detail=errors)
+        try:
+            updated = crud.update_row(slug, row_id, data, partial=True)
+            if updated is None:
+                raise HTTPException(status_code=404, detail=f"Record '{row_id}' not found in '{slug}'")
+            return UpdateResponse(success=True, table=slug, updated=1,
+                                  message="1 row(s) updated", **{id_key: updated})
+        except HTTPException:
+            raise
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise _conflict_or_500(e)
 
+    patch_row.__name__ = f"patch_{spec['func']}"
 
-# ── UPDATE — partial (PATCH) ────────────────────────────────────────
-@router.patch("/{table_slug}/{row_id}", response_model=UpdateResponse)
-def update_record(
-    table_slug: str,
-    row_id: str,
-    req: UpdateRequest,
-    user: dict = Depends(require_auth),
-):
-    """Partial update — only the fields you send are changed."""
-    _require_cfg(table_slug)
+    # ── DELETE ──
+    def delete_row(row_id: str = Path(..., description=id_desc), user: dict = Depends(require_auth)):
+        try:
+            if not crud.delete_row(slug, row_id):
+                raise HTTPException(status_code=404, detail=f"Record '{row_id}' not found in '{slug}'")
+            return DeleteResponse(success=True, table=slug, deleted=1, message="1 row(s) deleted")
+        except HTTPException:
+            raise
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+        except Exception as e:
+            raise _conflict_or_500(e)
 
-    errors = validate_update(table_slug, req.data, partial=True)
-    if errors:
-        raise HTTPException(status_code=422, detail=errors)
+    delete_row.__name__ = f"delete_{spec['func']}"
 
-    try:
-        updated_id = crud.update_row(table_slug, row_id, req.data, partial=True)
-        if updated_id is None:
-            raise HTTPException(status_code=404, detail=f"Record '{row_id}' not found in '{table_slug}'")
-        id_key = get_id_key(table_slug)
-        return UpdateResponse(
-            success=True,
-            table=table_slug,
-            updated=1,
-            message="1 row(s) updated",
-            **{id_key: updated_id},
-        )
-    except HTTPException:
-        raise
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise _conflict_or_500(e)
-
-
-# ── DELETE ──────────────────────────────────────────────────────────
-@router.delete("/{table_slug}/{row_id}", response_model=DeleteResponse)
-def delete_record(
-    table_slug: str,
-    row_id: str,
-    user: dict = Depends(require_auth),
-):
-    """Delete a row by ID. Returns 409 if other records reference it (FK RESTRICT)
-    or a DB trigger blocks the delete — nothing is partially removed."""
-    _require_cfg(table_slug)
-
-    try:
-        deleted = crud.delete_row(table_slug, row_id)
-        if not deleted:
-            raise HTTPException(status_code=404, detail=f"Record '{row_id}' not found in '{table_slug}'")
-        return DeleteResponse(
-            success=True,
-            table=table_slug,
-            deleted=1,
-            message="1 row(s) deleted",
-        )
-    except HTTPException:
-        raise
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise _conflict_or_500(e)
+    base = f"/api/v1/formulary/{slug}"
+    item = f"/api/v1/formulary/{slug}/{{row_id}}"
+    app.add_api_route(base, create_row, methods=["POST"], response_model=CreateResponse,
+                      tags=[tag], summary=f"Create {tag}", operation_id=f"create_{spec['func']}")
+    app.add_api_route(item, get_row, methods=["GET"], response_model=RowResponse,
+                      tags=[tag], summary=f"Get {tag} by ID", operation_id=f"get_{spec['func']}")
+    app.add_api_route(item, replace_row, methods=["PUT"], response_model=UpdateResponse,
+                      tags=[tag], summary=f"Replace {tag} (full update)", operation_id=f"replace_{spec['func']}")
+    app.add_api_route(item, patch_row, methods=["PATCH"], response_model=UpdateResponse,
+                      tags=[tag], summary=f"Update {tag} (partial)", operation_id=f"patch_{spec['func']}")
+    app.add_api_route(item, delete_row, methods=["DELETE"], response_model=DeleteResponse,
+                      tags=[tag], summary=f"Delete {tag}", operation_id=f"delete_{spec['func']}")

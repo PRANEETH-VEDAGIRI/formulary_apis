@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import init_pool, close_pool
-from app.routes import router, auth_router
+from app.routes import router, auth_router, register_table_routes
 from config import API_TITLE, API_VERSION
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
@@ -17,6 +17,7 @@ logger = logging.getLogger("formulary_api")
 async def lifespan(app: FastAPI):
     logger.info("Starting %s v%s", API_TITLE, API_VERSION)
     init_pool()
+    register_table_routes(app)
     yield
     close_pool()
     logger.info("Shutdown complete")
