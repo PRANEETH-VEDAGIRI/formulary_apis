@@ -20,3 +20,8 @@ insert_*.py
 swagger_*.py
 test_*.py
 sample_*
+seed_*.py
+precheck_*.py
+clean_*.py
+get_*.py
+run_*.py
